@@ -1,0 +1,36 @@
+{
+  "name": "@meichelbeck.io/module-config",
+  "version": "0.0.1",
+  "description": "A light package to handle module configurations with type safety.",
+  "main": ".dist/index.js",
+  "module": ".dist/index.mjs",
+  "types": ".dist/index.d.js",
+  "private": false,
+  "scripts": {
+    "dev": "vitest",
+    "test": "vitest run",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc",
+    "ci": "pnpm run lint && pnpm run test && pnpm run build",
+    "release": "pnpm run lint && pnpm run test && pnpm run build && changeset publish"
+  },
+  "keywords": [
+    "config",
+    "configuration",
+    "module",
+    "module-config",
+    "module-configuration",
+    "typescript",
+    "ts",
+    "type"
+  ],
+  "author": "Jérôme Meichelbeck",
+  "license": "ISC",
+  "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "@types/node": "^20.5.7",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.3"
+  }
+}
