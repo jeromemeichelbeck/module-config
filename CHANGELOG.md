@@ -1,5 +1,11 @@
 # @meichelbeck.io/module-config
 
+## 0.0.6
+
+### Patch Changes
+
+- Cleanup and fix typo in package.json
+
 ## 0.0.5
 
 ### Patch Changes

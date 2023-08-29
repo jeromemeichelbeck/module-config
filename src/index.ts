@@ -21,20 +21,3 @@ export const createModuleConfig = <
   ) => 'some key to retreive' as unknown as U | undefined;
   return { getValue };
 };
-
-const getData = createModuleConfig([
-  {
-    key: 'Field1',
-    schema: z.string(),
-  },
-  {
-    key: 'Field2',
-    schema: z.number(),
-  },
-]);
-
-const value1 = getData.getValue('Field1');
-//      ^?
-const value2 = getData.getValue('Field2');
-//      ^?
-console.log({ value1, value2 });
