@@ -1,23 +1,62 @@
 import { z } from 'zod';
 
-type AccepptedType = string | number | boolean | undefined;
-
-type Field<T extends AccepptedType> = {
-  key: string;
-  schema: z.ZodType<T>;
+type FieldTypeMapping = {
+  text: string | number;
+  password: string;
+  email: string;
+  number: number;
+  textarea: string;
+  checkbox: boolean;
+  radio: string | number;
+  select: string | number;
+  multiselect: string[] | number[];
 };
 
+type FieldType = keyof FieldTypeMapping;
+
+type AccepptedValues<K extends FieldType> = FieldTypeMapping[K];
+
+type Field<K extends FieldType> = {
+  key: string;
+  type: K;
+  // schema: z.ZodType<AccepptedValues<K>>;
+};
+
+// type Test = Field<'multiselect'>;
+
+// const truc: Test = {
+//   key: 'name',
+//   type: 'multiselect',
+//   schema: z.array(z.number()),
+// };
+
 export const createModuleConfig = <
-  const TField extends Field<TValue>,
-  TValue extends AccepptedType
+  const TField extends Field<TFieldType>,
+  TFieldType extends FieldType
 >(
   fields: TField[]
 ) => {
   const getValue = <
-    K extends TField['key'],
-    U extends z.infer<Extract<(typeof fields)[number], { key: K }>['schema']>
+    TFieldKey extends TField['key'],
+    // TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
   >(
-    key: K
-  ) => 'some key to retreive' as unknown as U | undefined;
+    key: TFieldKey
+  ) => 'some key to retreive' 
+  // as unknown as TFieldValue | undefined;
   return { getValue };
 };
+
+const moduleConfig = createModuleConfig([
+  {
+    key: 'name',
+    type: 'text',
+    schema: z.boolean(),
+  },
+  {
+    key: 'optin',
+    type: 'checkbox',
+    schema: z.string(),
+  },
+]);
+
+const value = moduleConfig.getValue('name'); // string | undefined
