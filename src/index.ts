@@ -19,7 +19,7 @@ type AccepptedValues<K extends FieldType> = FieldTypeMapping[K];
 type Field<K extends FieldType> = {
   key: string;
   type: K;
-  // schema: z.ZodType<AccepptedValues<K>>;
+  schema: z.ZodType<AccepptedValues<K>>;
 };
 
 // type Test = Field<'multiselect'>;
@@ -38,11 +38,10 @@ export const createModuleConfig = <
 ) => {
   const getValue = <
     TFieldKey extends TField['key'],
-    // TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
+    TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
   >(
     key: TFieldKey
-  ) => 'some key to retreive' 
-  // as unknown as TFieldValue | undefined;
+  ) => 'some key to retreive' as unknown as TFieldValue | undefined;
   return { getValue };
 };
 
@@ -59,4 +58,5 @@ const moduleConfig = createModuleConfig([
   },
 ]);
 
-const value = moduleConfig.getValue('name'); // string | undefined
+const value1 = moduleConfig.getValue('name'); // string | undefined
+const value2 = moduleConfig.getValue('optin'); // string | undefined
