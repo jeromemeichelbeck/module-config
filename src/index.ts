@@ -22,14 +22,6 @@ type Field<K extends FieldType> = {
   schema: z.ZodType<AccepptedValues<K>>;
 };
 
-// type Test = Field<'multiselect'>;
-
-// const truc: Test = {
-//   key: 'name',
-//   type: 'multiselect',
-//   schema: z.array(z.number()),
-// };
-
 export const createModuleConfig = <
   const TField extends Field<TFieldType>,
   TFieldType extends FieldType
@@ -58,5 +50,7 @@ const moduleConfig = createModuleConfig([
   },
 ]);
 
-const value1 = moduleConfig.getValue('name'); // string | undefined
-const value2 = moduleConfig.getValue('optin'); // string | undefined
+const value1 = moduleConfig.getValue('name');
+      // ^?
+const value2 = moduleConfig.getValue('optin');
+      // ^? 
