@@ -1,50 +1,52 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 type FieldTypeMapping = {
-  text: string | number;
-  password: string;
-  email: string;
-  number: number;
-  textarea: string;
-  checkbox: boolean;
-  radio: string | number;
-  select: string | number;
-  multiselect: string[] | number[];
-};
+  text: string | number
+  password: string
+  email: string
+  number: number
+  textarea: string
+  checkbox: boolean
+  radio: string | number
+  select: string | number
+  multiselect: string[] | number[]
+}
 
-type FieldType = keyof FieldTypeMapping;
+type FieldType = keyof FieldTypeMapping
 
-type AccepptedValues<K extends FieldType> = FieldTypeMapping[K];
+type AccepptedValues<K extends FieldType> = FieldTypeMapping[K]
 
 type Field<K extends FieldType> = {
-  key: string;
-  type: K;
-  // schema: z.ZodType<AccepptedValues<K>>;
-};
+  key: string
+  type: K
+  schema: z.ZodType<AccepptedValues<K>>
+}
 
-// type Test = Field<'multiselect'>;
+type Test = Field<'checkbox'>
 
-// const truc: Test = {
-//   key: 'name',
-//   type: 'multiselect',
-//   schema: z.array(z.number()),
-// };
+const truc: Test = {
+  key: 'name',
+  type: 'checkbox',
+  schema: z.boolean(),
+}
 
 export const createModuleConfig = <
-  const TField extends Field<TFieldType>,
-  TFieldType extends FieldType
+  const TField extends Field<TFieldKey>,
+  TFieldKey extends FieldType
+  // const TFields extends TField[]
 >(
   fields: TField[]
 ) => {
   const getValue = <
     TFieldKey extends TField['key'],
-    // TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
+    TFieldValue extends z.infer<
+      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
+    >
   >(
     key: TFieldKey
-  ) => 'some key to retreive' 
-  // as unknown as TFieldValue | undefined;
-  return { getValue };
-};
+  ) => 'some key to retreive' as unknown as TFieldValue | undefined
+  return { getValue }
+}
 
 const moduleConfig = createModuleConfig([
   {
@@ -57,6 +59,8 @@ const moduleConfig = createModuleConfig([
     type: 'checkbox',
     schema: z.string(),
   },
-]);
+])
 
-const value = moduleConfig.getValue('name'); // string | undefined
+const value = moduleConfig.getValue('name') // string | undefined
+
+// console.log(value)
