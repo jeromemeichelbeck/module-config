@@ -1,24 +1,48 @@
-import { z } from 'zod';
+type AcceptedValueTypes = string | number | boolean
 
-type AcceptedValues = string | number | boolean;
+type DependsOnValue<T extends AcceptedValueTypes> = {
+  foo: 'bar'
+  test: T
+}
 
-type Item<T extends AcceptedValues> = {
-  value: T;
-  schema: z.Schema<T>;
-};
+type Item<T extends AcceptedValueTypes> = {
+  value: T
+  dependsOnValue: DependsOnValue<T>
+}
 
-const itemsParser = <const T extends Item<K>, K extends AcceptedValues>(
-  items: T[]
-) => {};
+type CheckValueMatchesTest<T extends Item<AcceptedValueTypes>> =
+  T['value'] extends T['dependsOnValue']['test'] ? T : never
 
-const parsedItems = itemsParser([
+const parseItems = <T extends Item<AcceptedValueTypes>[]>(
+  items: CheckValueMatchesTest<T>[]
+) => {
+  // Your parsing logic here
+}
+
+const test = parseItems([
   {
-    value: 12,
-    //@ts-expect-error
-    schema: z.string(),
+    value: 'test',
+    dependsOnValue: {
+      foo: 'bar',
+      test: 'test',
+    },
   },
   {
-    value: 'some other value',
-    schema: z.string(),
+    value: 1,
+    dependsOnValue: {
+      foo: 'bar',
+      test: 1,
+    },
   },
-]);
+])
+
+// This will result in a type error
+const testError = parseItems([
+  {
+    value: 2,
+    dependsOnValue: {
+      foo: 'bar',
+      test: '2',
+    },
+  },
+])
