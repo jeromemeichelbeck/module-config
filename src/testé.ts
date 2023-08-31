@@ -1,48 +1,75 @@
+import { type } from 'os';
 import { z } from 'zod';
 
-type AcceptedValues = string | number | boolean;
-
-type Item<T extends AcceptedValues> = {
-  value: T;
-  schema: z.Schema<T>;
+type FieldTypeMapping = {
+  text: string | number;
+  password: string;
+  email: string;
+  number: number;
+  textarea: string;
+  checkbox: boolean;
+  radio: string | number;
+  select: string | number;
+  // multiselect: string[] | number[]
 };
 
-type ValidateItem<TItem extends Item<any>[]> = {
-  [I in keyof TItem]: TItem[I] extends {
-    value: infer T1 extends AcceptedValues;
-    schema: z.Schema<infer T2>;
-  }
-    ? { value: T2; schema: z.Schema<T1> }
+type FieldType = keyof FieldTypeMapping;
+
+type AcceptedValues<T extends FieldType> = FieldTypeMapping[T];
+
+type Item<T extends FieldType, U = z.Schema<AcceptedValues<T>>> = {
+  key: string;
+  type: T;
+  // value: AcceptedValues<T>;
+  schema: U;
+};
+
+type ValidateItems<TItem> = {
+  [I in keyof TItem]: TItem[I] extends Item<
+    infer T1 extends FieldType,
+    z.Schema<AcceptedValues<infer T2>>
+  >
+    ? Item<T2, z.Schema<AcceptedValues<T1>>>
     : never;
 };
 
 const itemsParser = <T extends Item<any>[] | [any]>(
-  items: T & ValidateItem<T>,
+  _: T & ValidateItems<T>,
 ) => {};
 
 itemsParser([
   {
-    value: 'string',
-    schema: z.string(),
-  },
-  {
-    value: 5,
+    key: 'name',
+    type: 'text',
     schema: z.number(),
   },
-  {
-    value: [5],
-    schema: z.array(z.number()),
-  },
-  {
-    value: 3,
-    schema: z.string(),
-  },
-  {
-    value: '3',
-    schema: z.number(),
-  },
-  {
-    value: false,
-    schema: z.boolean(),
-  },
+  // {
+  //   key: 'age',
+  //   type: 'number',
+  //   schema: z.number(),
+  // },
+  // {
+  //   key: 'preferedNumbers',
+  //   type: 'select',
+  //   value: [7, 8, 23],
+  //   schema: z.array(z.number()),
+  // },
+  // {
+  //   key: 'numberOfCrushes',
+  //   type: 'select',
+  //   value: 3,
+  //   schema: z.string(),
+  // },
+  // {
+  //   key: 'numberOfCrashes',
+  //   type: 'number',
+  //   value: '3',
+  //   schema: z.number(),
+  // },
+  // {
+  //   key: 'optin',
+  //   type: 'checkbox',
+  //   value: false,
+  //   schema: z.boolean(),
+  // },
 ]);
