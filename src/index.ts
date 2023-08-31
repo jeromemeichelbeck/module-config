@@ -14,12 +14,12 @@ type FieldTypeMapping = {
 
 type FieldType = keyof FieldTypeMapping
 
-type AccepptedValues<T extends FieldType> = FieldTypeMapping[T]
+type AcceptedValues<T extends FieldType> = FieldTypeMapping[T]
 
 type Field<K extends FieldType> = {
   key: string
   type: K
-  schema: z.ZodType<AccepptedValues<K>>
+  schema: z.ZodType<AcceptedValues<K>>
 }
 
 export const createModuleConfig = <
