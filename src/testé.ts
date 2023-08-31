@@ -1,48 +1,48 @@
-type AcceptedValueTypes = string | number | boolean
+import { z } from 'zod';
 
-type DependsOnValue<T extends AcceptedValueTypes> = {
-  foo: 'bar'
-  test: T
-}
+type AcceptedValues = string | number | boolean;
 
-type Item<T extends AcceptedValueTypes> = {
-  value: T
-  dependsOnValue: DependsOnValue<T>
-}
+type Item<T extends AcceptedValues> = {
+  value: T;
+  schema: z.Schema<T>;
+};
 
-type CheckValueMatchesTest<T extends Item<AcceptedValueTypes>> =
-  T['value'] extends T['dependsOnValue']['test'] ? T : never
+type ValidateItem<TItem extends Item<any>[]> = {
+  [I in keyof TItem]: TItem[I] extends {
+    value: infer T1 extends AcceptedValues;
+    schema: z.Schema<infer T2>;
+  }
+    ? { value: T2; schema: z.Schema<T1> }
+    : never;
+};
 
-const parseItems = <T extends Item<AcceptedValueTypes>[]>(
-  items: CheckValueMatchesTest<T>[]
-) => {
-  // Your parsing logic here
-}
+const itemsParser = <T extends Item<any>[] | [any]>(
+  items: T & ValidateItem<T>,
+) => {};
 
-const test = parseItems([
+itemsParser([
   {
-    value: 'test',
-    dependsOnValue: {
-      foo: 'bar',
-      test: 'test',
-    },
+    value: 'string',
+    schema: z.string(),
   },
   {
-    value: 1,
-    dependsOnValue: {
-      foo: 'bar',
-      test: 1,
-    },
+    value: 5,
+    schema: z.number(),
   },
-])
-
-// This will result in a type error
-const testError = parseItems([
   {
-    value: 2,
-    dependsOnValue: {
-      foo: 'bar',
-      test: '2',
-    },
+    value: [5],
+    schema: z.array(z.number()),
   },
-])
+  {
+    value: 3,
+    schema: z.string(),
+  },
+  {
+    value: '3',
+    schema: z.number(),
+  },
+  {
+    value: false,
+    schema: z.boolean(),
+  },
+]);
