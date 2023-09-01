@@ -1,39 +1,71 @@
+import { type } from 'os';
 import { z } from 'zod';
 
-type AccepptedValues = string | number | boolean;
+type FieldTypeMapping = {
+  text: string | number;
+  password: string;
+  email: string;
+  number: number;
+  textarea: string;
+  checkbox: boolean;
+  radio: string | number;
+  select: string | number;
+  multiselect: string[] | number[];
+};
 
-type Field<T extends AccepptedValues> = {
+type FieldType = keyof FieldTypeMapping;
+
+type AcceptedValues<T extends FieldType> = FieldTypeMapping[T];
+
+type Item<T extends FieldType, U = z.Schema<AcceptedValues<T>>> = {
   key: string;
-  schema: z.ZodType<T>;
-  value: T;
+  type: T;
+  // value: AcceptedValues<T>;
+  schema: U;
 };
 
-const testField = {
-  key: 'name',
-  schema: z.number(),
-  value: 'some name',
-} satisfies Field<string>;
-
-type Fields<T extends AccepptedValues[]> = Field<T[number]>[];
-
-export const createModuleConfig = <const T extends Fields<[number, boolean]>>(
-  fields: T
-) => {
-  return fields[0];
+type ValidateItems<TItems extends Item<FieldType>[] | [any]> = {
+  [I in keyof TItems]: TItems[I] extends Item<
+    infer T1 extends FieldType,
+    z.Schema<AcceptedValues<infer T2>>
+  >
+    ? Item<T2, z.Schema<AcceptedValues<T1>>>
+    : never;
 };
 
-const moduleConfig = createModuleConfig([
+const itemsParser = <TItems extends Item<FieldType>[] | [any]>(
+  _: TItems & ValidateItems<TItems>,
+) => {};
+
+itemsParser([
   {
     key: 'name',
-    schema: z.number(),
-    value: 12,
+    type: 'text',
+    schema: z.string(),
   },
   {
     key: 'age',
-    schema: z.string(),
-    // ^?
-    value: false,
+    type: 'number',
+    schema: z.number(),
+  },
+  {
+    key: 'preferedNumbers',
+    type: 'multiselect',
+    schema: z.array(z.number()),
+  },
+  {
+    key: 'numberOfCrushes',
+    type: 'select',
+    schema: z.number(),
+  },
+  {
+    key: 'numberOfCrashes',
+    type: 'radio',
+    schema: z.number(),
+  },
+  {
+    key: 'optin',
+    type: 'checkbox',
+    schema: z.boolean(),
   },
 ]);
-
-const truc = moduleConfig
