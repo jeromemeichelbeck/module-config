@@ -16,26 +16,39 @@ type FieldType = keyof FieldTypeMapping;
 
 type AcceptedValues<T extends FieldType> = FieldTypeMapping[T];
 
-type Item<T extends FieldType, U = z.Schema<AcceptedValues<T>>> = {
+type Field<T extends FieldType, U = z.Schema<AcceptedValues<T>>> = {
   key: string;
   type: T;
   schema: U;
 };
 
-type ValidateItems<TItems extends Item<FieldType>[] | [any]> = {
-  [I in keyof TItems]: TItems[I] extends Item<
+type ValidateFields<TFields extends Field<FieldType>[] | [any]> = {
+  [I in keyof TFields]: TFields[I] extends Field<
     infer T1 extends FieldType,
     z.Schema<AcceptedValues<infer T2>>
   >
-    ? Item<T2, z.Schema<AcceptedValues<T1>>>
+    ? Field<T2, z.Schema<AcceptedValues<T1>>>
     : never;
 };
 
-const itemsParser = <TItems extends Item<FieldType>[] | [any]>(
-  _: TItems & ValidateItems<TItems>,
-) => {};
+const createModuleConfig = <
+  const TField extends Field<TFieldType>,
+  TFieldType extends FieldType,
+>(
+  fields: TField[],
+) => {
+  const getValue = <
+    TFieldKey extends TField['key'],
+    TFieldValue extends z.infer<
+      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
+    >,
+  >(
+    key: TFieldKey,
+  ) => 'some key to retreive' as unknown as TFieldValue | undefined;
+  return { getValue };
+};
 
-itemsParser([
+const moduleConfig = createModuleConfig([
   {
     key: 'name',
     type: 'text',
@@ -54,7 +67,8 @@ itemsParser([
   {
     key: 'numberOfCrushes',
     type: 'select',
-    schema: z.number(),
+    // @ts-expect-error
+    schema: z.boolean(),
   },
   {
     key: 'numberOfCrashes',
@@ -67,3 +81,8 @@ itemsParser([
     schema: z.boolean(),
   },
 ]);
+
+const value1 = moduleConfig.getValue('name');
+//      ^?
+const value2 = moduleConfig.getValue('optin');
+//      ^?
