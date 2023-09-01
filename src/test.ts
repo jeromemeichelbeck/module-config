@@ -1,4 +1,3 @@
-import { type } from 'os';
 import { z } from 'zod';
 
 type FieldTypeMapping = {
@@ -20,7 +19,6 @@ type AcceptedValues<T extends FieldType> = FieldTypeMapping[T];
 type Item<T extends FieldType, U = z.Schema<AcceptedValues<T>>> = {
   key: string;
   type: T;
-  // value: AcceptedValues<T>;
   schema: U;
 };
 
