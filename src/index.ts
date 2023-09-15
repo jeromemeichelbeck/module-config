@@ -48,6 +48,7 @@ const moduleConfig = createModuleConfig([
   {
     key: 'optin',
     type: 'checkbox',
+    // @ts-expect-error
     schema: z.string(),
   },
 ]);
@@ -55,4 +56,7 @@ const moduleConfig = createModuleConfig([
 const value1 = moduleConfig.getValue('name');
 //      ^?
 const value2 = moduleConfig.getValue('optin');
+//      ^?
+// @ts-expect-error
+const value3 = moduleConfig.getValue('o');
 //      ^?
