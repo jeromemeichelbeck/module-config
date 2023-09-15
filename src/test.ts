@@ -31,14 +31,11 @@ type ValidateFields<TFields extends Field<FieldType>[] | [any]> = {
     : never;
 };
 
-const createModuleConfig = <
-  const TField extends Field<TFieldType>,
-  TFieldType extends FieldType,
->(
-  fields: TField[],
+const createModuleConfig = <TFields extends Field<FieldType>[] | [any]>(
+  fields: TFields & ValidateFields<TFields>,
 ) => {
   const getValue = <
-    TFieldKey extends TField['key'],
+    TFieldKey extends TFields[number]['key'],
     TFieldValue extends z.infer<
       Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
     >,
@@ -85,4 +82,7 @@ const moduleConfig = createModuleConfig([
 const value1 = moduleConfig.getValue('name');
 //      ^?
 const value2 = moduleConfig.getValue('optin');
+//      ^?
+// @ts-expect-error
+const value3 = moduleConfig.getValue('o');
 //      ^?
