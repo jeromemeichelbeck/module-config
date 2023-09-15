@@ -16,10 +16,19 @@ type FieldType = keyof FieldTypeMapping;
 
 type AcceptedValues<T extends FieldType> = FieldTypeMapping[T];
 
-type Field<K extends FieldType> = {
+type Field<T extends FieldType, U = z.Schema<AcceptedValues<T>>> = {
   key: string;
-  type: K;
-  schema: z.ZodType<AcceptedValues<K>>;
+  type: T;
+  schema: U;
+};
+
+type ValidateFields<TFields extends Field<FieldType>[] | [any]> = {
+  [I in keyof TFields]: TFields[I] extends Field<
+    infer T1 extends FieldType,
+    z.Schema<AcceptedValues<infer T2>>
+  >
+    ? Field<T2, z.Schema<AcceptedValues<T1>>>
+    : never;
 };
 
 export const createModuleConfig = <
@@ -49,7 +58,7 @@ const moduleConfig = createModuleConfig([
     key: 'optin',
     type: 'checkbox',
     // @ts-expect-error
-    schema: z.string(),
+    schema: z.number(),
   },
 ]);
 
