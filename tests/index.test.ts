@@ -1,10 +1,9 @@
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { createModuleConfig } from '../src/index';
 import { z } from 'zod';
-
 let moduleConfig: any;
 
-beforeAll(() => {
+beforeEach(() => {
   moduleConfig = createModuleConfig([
     {
       key: 'name',
@@ -14,7 +13,7 @@ beforeAll(() => {
     {
       key: 'age',
       type: 'number',
-      schema: z.number(),
+      schema: z.number().min(18),
     },
   ]);
 });
@@ -32,5 +31,21 @@ describe('createModuleConfig', () => {
 
   it('should throw an error when setting a value with the wrong type', () => {
     expect(() => moduleConfig.set('age', '42')).toThrowError();
+  });
+
+  it('should throw an error when setting a value that does not respect the schema', () => {
+    expect(() => moduleConfig.set('age', 17)).toThrowError();
+  });
+
+  it('should throw an error when setting a value that does not exist', () => {
+    expect(() => moduleConfig.set('foo', 'bar')).toThrowError();
+  });
+
+  it('should throw an error when getting a value that does not exist', () => {
+    expect(() => moduleConfig.get('foo')).toThrowError();
+  });
+
+  it('should return undefined when getting a value that has not been set', () => {
+    expect(moduleConfig.get('age')).toBeUndefined();
   });
 });
