@@ -1,5 +1,11 @@
 # @meichelbeck.io/module-config
 
+## 0.1.1
+
+### Patch Changes
+
+- Added validation to set and get
+
 ## 0.1.0
 
 ### Minor Changes

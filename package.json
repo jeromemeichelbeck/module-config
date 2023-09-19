@@ -1,6 +1,6 @@
 {
   "name": "@meichelbeck.io/module-config",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A light package to handle module configurations with type safety.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
