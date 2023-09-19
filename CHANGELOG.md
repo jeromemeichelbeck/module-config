@@ -1,5 +1,11 @@
 # @meichelbeck.io/module-config
 
+## 0.1.0
+
+### Minor Changes
+
+- Get and set values
+
 ## 0.0.6
 
 ### Patch Changes
