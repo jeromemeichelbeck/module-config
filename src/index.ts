@@ -23,7 +23,7 @@ type Field<K extends FieldType> = {
 };
 
 export const createModuleConfig = <
-  const TField extends { [K in FieldType]: Field<K> }[FieldType],
+  const TField extends { [K in FieldType]: Field<K> }[FieldType]
 >(
   fields: TField[]
 ) => {
@@ -31,7 +31,9 @@ export const createModuleConfig = <
 
   const set = <
     TFieldKey extends TField['key'],
-    TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
+    TFieldValue extends z.infer<
+      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
+    >
   >(
     key: TFieldKey,
     value: TFieldValue
@@ -39,7 +41,9 @@ export const createModuleConfig = <
 
   const get = <
     TFieldKey extends TField['key'],
-    TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
+    TFieldValue extends z.infer<
+      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
+    >
   >(
     key: TFieldKey
   ) => values.get(key) as TFieldValue | undefined;
