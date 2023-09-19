@@ -22,17 +22,8 @@ type Field<K extends FieldType> = {
   schema: z.ZodType<AccepptedValues<K>>;
 };
 
-// type Test = Field<'multiselect'>;
-
-// const truc: Test = {
-//   key: 'name',
-//   type: 'multiselect',
-//   schema: z.array(z.number()),
-// };
-
 export const createModuleConfig = <
-  const TField extends Field<TFieldType>,
-  TFieldType extends FieldType
+  const TField extends { [K in FieldType]: Field<K> }[FieldType],
 >(
   fields: TField[]
 ) => {
@@ -49,14 +40,16 @@ const moduleConfig = createModuleConfig([
   {
     key: 'name',
     type: 'text',
-    schema: z.boolean(),
+    schema: z.string(),
   },
   {
     key: 'optin',
     type: 'checkbox',
-    schema: z.string(),
+    schema: z.boolean(),
   },
 ]);
 
 const value1 = moduleConfig.getValue('name'); // string | undefined
-const value2 = moduleConfig.getValue('optin'); // string | undefined
+const value2 = moduleConfig.getValue('optin'); // boolean | undefined
+// @ts-expect-error
+const value3 = moduleConfig.getValue('non-existing'); // undefined
