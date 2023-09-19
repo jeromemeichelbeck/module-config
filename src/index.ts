@@ -27,29 +27,22 @@ export const createModuleConfig = <
 >(
   fields: TField[]
 ) => {
-  const getValue = <
+  const values = new Map();
+
+  const set = <
+    TFieldKey extends TField['key'],
+    TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
+  >(
+    key: TFieldKey,
+    value: TFieldValue
+  ) => values.set(key, value);
+
+  const get = <
     TFieldKey extends TField['key'],
     TFieldValue extends z.infer<Extract<(typeof fields)[number], { key: TFieldKey }>['schema']>
   >(
     key: TFieldKey
-  ) => 'some key to retreive' as unknown as TFieldValue | undefined;
-  return { getValue };
+  ) => values.get(key) as TFieldValue | undefined;
+
+  return { set, get };
 };
-
-const moduleConfig = createModuleConfig([
-  {
-    key: 'name',
-    type: 'text',
-    schema: z.string(),
-  },
-  {
-    key: 'optin',
-    type: 'checkbox',
-    schema: z.boolean(),
-  },
-]);
-
-const value1 = moduleConfig.getValue('name'); // string | undefined
-const value2 = moduleConfig.getValue('optin'); // boolean | undefined
-// @ts-expect-error
-const value3 = moduleConfig.getValue('non-existing'); // undefined
