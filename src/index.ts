@@ -31,9 +31,12 @@ type ValidateFields<TFields extends Field<FieldType>[] | [any]> = {
     : never;
 };
 
+type TransformUnionToItems<T extends FieldType> = {
+  [P in T]: Field<P>;
+}[T];
+
 export const createModuleConfig = <
-  const TField extends Field<TFieldType>,
-  TFieldType extends FieldType,
+  const TField extends TransformUnionToItems<FieldType>,
 >(
   fields: TField[],
 ) => {
@@ -57,8 +60,7 @@ const moduleConfig = createModuleConfig([
   {
     key: 'optin',
     type: 'checkbox',
-    // @ts-expect-error
-    schema: z.number(),
+    schema: z.boolean(),
   },
 ]);
 
