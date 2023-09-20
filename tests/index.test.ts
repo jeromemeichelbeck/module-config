@@ -68,4 +68,28 @@ describe('createModuleConfig', () => {
       expect(moduleConfig.get('age')).toBeUndefined();
     });
   });
+
+  describe('safeSet', () => {
+    it('should not throw an error when setting a value with the wrong type', () => {
+      expect(() => moduleConfig.safeSet('age', '42')).not.toThrowError();
+    });
+
+    it('should not throw an error when setting a value that does not respect the schema', () => {
+      expect(() => moduleConfig.safeSet('age', 17)).not.toThrowError();
+    });
+
+    it('should not throw an error when setting a value that does not exist', () => {
+      expect(() => moduleConfig.safeSet('foo', 'bar')).not.toThrowError();
+    });
+  });
+
+  describe('safeGet', () => {
+    it('should not throw an error when getting a value that does not exist', () => {
+      expect(() => moduleConfig.safeGet('foo')).not.toThrowError();
+    });
+
+    it('should return undefined when getting a value that has not been set', () => {
+      expect(moduleConfig.safeGet('age')).toBeUndefined();
+    });
+  });
 });

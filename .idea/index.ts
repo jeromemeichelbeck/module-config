@@ -14,11 +14,11 @@ const moduleConfig = createModuleConfig([
   },
 ]);
 
-moduleConfig.set('name', 'John').set('age', '17', { safe: true });
-moduleConfig.set('lol', 'nimp', { safe: true });
+moduleConfig.safeSet('name', 'John').safeSet('age', '17',);
+moduleConfig.safeSet('lol', 'nimp');
 
-const name = moduleConfig.get('name'); // string
-const age = moduleConfig.get('age'); // number
-const nimp = moduleConfig.get('lol', { safe: true }); // string
+const name = moduleConfig.safeGet('name'); // string
+const age = moduleConfig.safeGet('age'); // number
+const nimp = moduleConfig.safeGet('lol'); // string
 
 console.log(name, age, nimp);
