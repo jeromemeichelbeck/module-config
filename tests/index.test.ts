@@ -110,13 +110,15 @@ describe('createModuleConfig', () => {
     });
 
     it('should throw an error when setting a value with the wrong type', () => {
-      expect(() => moduleConfig.fromJson('{ "name": "John", "age": "42" }'))
-        .toThrowError();
+      expect(() =>
+        moduleConfig.fromJson('{ "name": "John", "age": "42" }')
+      ).toThrowError();
     });
 
     it('should throw an error when setting a value that does not respect the schema', () => {
-      expect(() => moduleConfig.fromJson('{ "name": "John", "age": 17 }'))
-        .toThrowError();
+      expect(() =>
+        moduleConfig.fromJson('{ "name": "John", "age": 17 }')
+      ).toThrowError();
     });
 
     it('should not throw an error when setting a value that does not respect the schema with the safe option', () => {
@@ -133,6 +135,39 @@ describe('createModuleConfig', () => {
       expect(() =>
         moduleConfig.fromJson('{ "foo": "bar" }', { safe: true })
       ).not.toThrowError();
+    });
+  });
+
+  describe('safeFromJson', () => {
+    it('should not throw an error when setting a value with the wrong type', () => {
+      expect(() =>
+        moduleConfig.safeFromJson('{ "name": "John", "age": "42" }')
+      ).not.toThrowError();
+    });
+
+    it('should not throw an error when setting a value that does not respect the schema', () => {
+      expect(() =>
+        moduleConfig.safeFromJson('{ "name": "John", "age": 17 }')
+      ).not.toThrowError();
+    });
+
+    it('should not throw an error when setting a value that does not exist', () => {
+      expect(() =>
+        moduleConfig.safeFromJson('{ "foo": "bar" }')
+      ).not.toThrowError();
+    });
+  });
+
+  describe('toJson', () => {
+    it('should return the correct JSON', () => {
+      moduleConfig.set('name', 'John');
+      moduleConfig.set('age', 23);
+      expect(moduleConfig.toJson()).toBe('{"name":"John","age":23}');
+    });
+
+    it('should return the correct JSON with default values', () => {
+      moduleConfig.set('name', 'John');
+      expect(moduleConfig.toJson()).toBe('{"name":"John","age":42}');
     });
   });
 });

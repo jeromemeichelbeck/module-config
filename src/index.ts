@@ -68,6 +68,10 @@ type ModuleConfig<TField extends AcceptedField> = {
   ) => TFieldValue | undefined;
 
   fromJson: (json: string, options?: GetSetOptions) => void;
+
+  safeFromJson: (json: string) => void;
+
+  toJson: () => string;
 };
 
 export const createModuleConfig = <const TField extends AcceptedField>(
@@ -79,7 +83,15 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     return fields.find((field) => field.key === key);
   };
 
-  const toReturn = { set, get, safeGet, safeSet, fromJson };
+  const toReturn = {
+    set,
+    get,
+    safeGet,
+    safeSet,
+    fromJson,
+    safeFromJson,
+    toJson,
+  };
 
   function set<
     TFieldKey extends TField['key'],
@@ -163,6 +175,23 @@ export const createModuleConfig = <const TField extends AcceptedField>(
 
       values.set(key, parsedValue.data);
     });
+  }
+
+  function safeFromJson(json: string) {
+    return fromJson(json, { safe: true });
+  }
+
+  function toJson() {
+    const json: Record<string, unknown> = {};
+
+    fields.forEach((field) => {
+      const value = values.get(field.key) ?? field.default;
+      if (value !== undefined) {
+        json[field.key] = value;
+      }
+    });
+
+    return JSON.stringify(json);
   }
 
   return toReturn;
