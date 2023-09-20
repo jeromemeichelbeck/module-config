@@ -26,6 +26,10 @@ type AcceptedField = {
   [K in FieldType]: Field<K>;
 }[FieldType];
 
+type GetSetOptions = {
+  safe?: boolean;
+};
+
 export const createModuleConfig = <const TField extends AcceptedField>(
   fields: TField[]
 ) => {
@@ -42,14 +46,27 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     >
   >(
     key: TFieldKey,
-    value: TFieldValue
+    value: TFieldValue,
+    options: GetSetOptions = { safe: false }
   ) => {
     const field = getFieldFromKey(key);
     if (!field) {
+      if (options.safe) {
+        return { set, get };
+      }
       throw new Error(`Field with key ${key} not found`);
     }
 
-    values.set(key, field.schema.parse(value));
+    const parsedValue = field.schema.safeParse(value);
+
+    if (!parsedValue.success) {
+      if (options.safe) {
+        return { set, get };
+      }
+      throw new Error(`Value ${value} is not valid for field ${key}`);
+    }
+
+    values.set(key, parsedValue.data);
     return { set, get };
   };
 
@@ -59,10 +76,14 @@ export const createModuleConfig = <const TField extends AcceptedField>(
       Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
     >
   >(
-    key: TFieldKey
+    key: TFieldKey,
+    options: GetSetOptions = { safe: false }
   ) => {
     const field = getFieldFromKey(key);
     if (!field) {
+      if (options.safe) {
+        return undefined;
+      }
       throw new Error(`Field with key ${key} not found`);
     }
 
@@ -71,23 +92,3 @@ export const createModuleConfig = <const TField extends AcceptedField>(
 
   return { set, get };
 };
-
-const moduleConfig = createModuleConfig([
-  {
-    key: 'name',
-    type: 'text',
-    schema: z.string(),
-  },
-  {
-    key: 'age',
-    type: 'number',
-    schema: z.number(),
-  },
-]);
-
-moduleConfig.set('name', 'John').set('age', 42);
-
-const name = moduleConfig.get('name'); // string
-const age = moduleConfig.get('age'); // number
-
-console.log(name, age);
