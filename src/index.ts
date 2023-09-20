@@ -21,6 +21,8 @@ type Field<TFIeldType extends FieldType> = {
   key: string;
   type: TFIeldType;
   schema: z.ZodSchema<AccepptedValues<TFIeldType>>;
+  label: string;
+  required?: boolean;
   default?: AccepptedValues<TFIeldType>;
 };
 
@@ -72,6 +74,8 @@ type ModuleConfig<TField extends AcceptedField> = {
   safeFromJson: (json: string) => void;
 
   toJson: () => string;
+
+  toJsonForm: () => string;
 };
 
 export const createModuleConfig = <const TField extends AcceptedField>(
@@ -91,6 +95,7 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     fromJson,
     safeFromJson,
     toJson,
+    toJsonForm,
   };
 
   function set<
@@ -188,6 +193,17 @@ export const createModuleConfig = <const TField extends AcceptedField>(
       const value = values.get(field.key) ?? field.default;
       if (value !== undefined) {
         json[field.key] = value;
+      }
+    });
+
+    return JSON.stringify(json);
+  }
+
+  function toJsonForm() {
+    const json = fields.map((field) => {
+      const value = values.get(field.key) ?? field.default;
+      if (value !== undefined) {
+        return { ...field, value };
       }
     });
 

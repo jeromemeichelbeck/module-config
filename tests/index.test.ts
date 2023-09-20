@@ -9,11 +9,13 @@ beforeEach(() => {
       key: 'name',
       type: 'text',
       schema: z.string(),
+      label: 'Name',
     },
     {
       key: 'age',
       type: 'number',
       schema: z.number().min(18),
+      label: 'Age',
       default: 42,
     },
   ]);
