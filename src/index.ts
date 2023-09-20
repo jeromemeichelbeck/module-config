@@ -66,6 +66,8 @@ type ModuleConfig<TField extends AcceptedField> = {
   >(
     key: TFieldKey
   ) => TFieldValue | undefined;
+
+  fromJson: (json: string, options?: GetSetOptions) => void;
 };
 
 export const createModuleConfig = <const TField extends AcceptedField>(
@@ -77,7 +79,7 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     return fields.find((field) => field.key === key);
   };
 
-  const toReturn = { set, get, safeGet, safeSet };
+  const toReturn = { set, get, safeGet, safeSet, fromJson };
 
   function set<
     TFieldKey extends TField['key'],
@@ -136,6 +138,31 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     TFieldValue extends FieldValue<TField, TFieldKey>
   >(key: TFieldKey) {
     return get(key, { safe: true }) as TFieldValue | undefined;
+  }
+
+  function fromJson(json: string, options: GetSetOptions = { safe: false }) {
+    const parsedJson = JSON.parse(json);
+
+    Object.entries(parsedJson).forEach(([key, value]) => {
+      const field = getFieldFromKey(key);
+      if (!field) {
+        if (options.safe) {
+          return;
+        }
+        throw new Error(`Field with key ${key} not found`);
+      }
+
+      const parsedValue = field.schema.safeParse(value);
+
+      if (!parsedValue.success) {
+        if (options.safe) {
+          return;
+        }
+        throw new Error(`Value ${value} is not valid for field ${key}`);
+      }
+
+      values.set(key, parsedValue.data);
+    });
   }
 
   return toReturn;

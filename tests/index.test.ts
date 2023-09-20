@@ -101,4 +101,38 @@ describe('createModuleConfig', () => {
       expect(moduleConfig.safeGet('age')).toBe(42);
     });
   });
+
+  describe('fromJson', () => {
+    it('should set values correctly', () => {
+      moduleConfig.fromJson('{ "name": "John", "age": 23 }');
+      expect(moduleConfig.get('name')).toBe('John');
+      expect(moduleConfig.get('age')).toBe(23);
+    });
+
+    it('should throw an error when setting a value with the wrong type', () => {
+      expect(() => moduleConfig.fromJson('{ "name": "John", "age": "42" }'))
+        .toThrowError();
+    });
+
+    it('should throw an error when setting a value that does not respect the schema', () => {
+      expect(() => moduleConfig.fromJson('{ "name": "John", "age": 17 }'))
+        .toThrowError();
+    });
+
+    it('should not throw an error when setting a value that does not respect the schema with the safe option', () => {
+      expect(() =>
+        moduleConfig.fromJson('{ "name": "John", "age": 17 }', { safe: true })
+      ).not.toThrowError();
+    });
+
+    it('should throw an error when setting a value that does not exist', () => {
+      expect(() => moduleConfig.fromJson('{ "foo": "bar" }')).toThrowError();
+    });
+
+    it('should not throw an error when setting a value that does not exist with the safe option', () => {
+      expect(() =>
+        moduleConfig.fromJson('{ "foo": "bar" }', { safe: true })
+      ).not.toThrowError();
+    });
+  });
 });
