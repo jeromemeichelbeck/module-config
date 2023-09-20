@@ -14,6 +14,7 @@ beforeEach(() => {
       key: 'age',
       type: 'number',
       schema: z.number().min(18),
+      default: 42,
     },
   ]);
 });
@@ -65,7 +66,11 @@ describe('createModuleConfig', () => {
     });
 
     it('should return undefined when getting a value that has not been set', () => {
-      expect(moduleConfig.get('age')).toBeUndefined();
+      expect(moduleConfig.get('name')).toBeUndefined();
+    });
+
+    it('should return the default value when getting a value that has not been set', () => {
+      expect(moduleConfig.get('age')).toBe(42);
     });
   });
 
@@ -89,7 +94,11 @@ describe('createModuleConfig', () => {
     });
 
     it('should return undefined when getting a value that has not been set', () => {
-      expect(moduleConfig.safeGet('age')).toBeUndefined();
+      expect(moduleConfig.safeGet('name')).toBeUndefined();
+    });
+
+    it('should return the default value when getting a value that has not been set', () => {
+      expect(moduleConfig.safeGet('age')).toBe(42);
     });
   });
 });

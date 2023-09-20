@@ -14,12 +14,14 @@ type FieldTypeMapping = {
 
 type FieldType = keyof FieldTypeMapping;
 
-type AccepptedValues<K extends FieldType> = FieldTypeMapping[K];
+type AccepptedValues<TFieldType extends FieldType> =
+  FieldTypeMapping[TFieldType];
 
-type Field<K extends FieldType> = {
+type Field<TFIeldType extends FieldType> = {
   key: string;
-  type: K;
-  schema: z.ZodSchema<AccepptedValues<K>>;
+  type: TFIeldType;
+  schema: z.ZodSchema<AccepptedValues<TFIeldType>>;
+  default?: AccepptedValues<TFIeldType>;
 };
 
 type AcceptedField = {
@@ -75,6 +77,8 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     return fields.find((field) => field.key === key);
   };
 
+  const toReturn = { set, get, safeGet, safeSet };
+
   function set<
     TFieldKey extends TField['key'],
     TFieldValue extends FieldValue<TField, TFieldKey>
@@ -86,7 +90,7 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     const field = getFieldFromKey(key);
     if (!field) {
       if (options.safe) {
-        return { set, get, safeGet, safeSet };
+        return toReturn;
       }
       throw new Error(`Field with key ${key} not found`);
     }
@@ -95,14 +99,14 @@ export const createModuleConfig = <const TField extends AcceptedField>(
 
     if (!parsedValue.success) {
       if (options.safe) {
-        return { set, get, safeGet, safeSet };
+        return toReturn;
       }
       throw new Error(`Value ${value} is not valid for field ${key}`);
     }
 
     values.set(key, parsedValue.data);
 
-    return { set, get, safeGet, safeSet };
+    return toReturn;
   }
 
   function safeSet<
@@ -124,7 +128,7 @@ export const createModuleConfig = <const TField extends AcceptedField>(
       throw new Error(`Field with key ${key} not found`);
     }
 
-    return values.get(key) as TFieldValue | undefined;
+    return values.get(key) ?? (field.default as TFieldValue | undefined);
   }
 
   function safeGet<
@@ -134,5 +138,5 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     return get(key, { safe: true }) as TFieldValue | undefined;
   }
 
-  return { set, get, safeGet, safeSet };
+  return toReturn;
 };
