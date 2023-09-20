@@ -1,5 +1,11 @@
 # @meichelbeck.io/module-config
 
+## 0.4.0
+
+### Minor Changes
+
+- Parse values from json
+
 ## 0.3.0
 
 ### Minor Changes
