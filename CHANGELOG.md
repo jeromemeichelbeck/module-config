@@ -1,5 +1,11 @@
 # @meichelbeck.io/module-config
 
+## 0.4.1
+
+### Patch Changes
+
+- Safe from JSON + to JSON
+
 ## 0.4.0
 
 ### Minor Changes
