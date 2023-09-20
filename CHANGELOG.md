@@ -1,5 +1,11 @@
 # @meichelbeck.io/module-config
 
+## 0.3.0
+
+### Minor Changes
+
+- Add (optional) default value to field
+
 ## 0.2.1
 
 ### Patch Changes
