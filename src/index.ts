@@ -19,7 +19,7 @@ type AccepptedValues<K extends FieldType> = FieldTypeMapping[K];
 type Field<K extends FieldType> = {
   key: string;
   type: K;
-  schema: z.ZodType<AccepptedValues<K>>;
+  schema: z.ZodSchema<AccepptedValues<K>>;
 };
 
 type AcceptedField = {
@@ -30,22 +30,54 @@ type GetSetOptions = {
   safe?: boolean;
 };
 
+type FieldValue<
+  TField extends Field<FieldType>,
+  TFieldKey extends Field<FieldType>['key']
+> = z.infer<Extract<TField, { key: TFieldKey }>['schema']>;
+
+type ModuleConfig<TField extends AcceptedField> = {
+  set: <
+    TFieldKey extends TField['key'],
+    TFieldValue extends FieldValue<TField, TFieldKey>
+  >(
+    key: TFieldKey,
+    value: TFieldValue,
+    options?: GetSetOptions
+  ) => ModuleConfig<TField>;
+  safeSet: <
+    TFieldKey extends TField['key'],
+    TFieldValue extends FieldValue<TField, TFieldKey>
+  >(
+    key: TFieldKey,
+    value: TFieldValue
+  ) => ModuleConfig<TField>;
+  get: <
+    TFieldKey extends TField['key'],
+    TFieldValue extends FieldValue<TField, TFieldKey>
+  >(
+    key: TFieldKey,
+    options?: GetSetOptions
+  ) => TFieldValue | undefined;
+  safeGet: <
+    TFieldKey extends TField['key'],
+    TFieldValue extends FieldValue<TField, TFieldKey>
+  >(
+    key: TFieldKey
+  ) => TFieldValue | undefined;
+};
+
 export const createModuleConfig = <const TField extends AcceptedField>(
   fields: TField[]
-) => {
+): ModuleConfig<TField> => {
   const values = new Map();
 
   const getFieldFromKey = (key: string) => {
     return fields.find((field) => field.key === key);
   };
 
-  const toReturn = { set, get, safeGet, safeSet };
-
   function set<
     TFieldKey extends TField['key'],
-    TFieldValue extends z.infer<
-      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
-    >
+    TFieldValue extends FieldValue<TField, TFieldKey>
   >(
     key: TFieldKey,
     value: TFieldValue,
@@ -54,7 +86,7 @@ export const createModuleConfig = <const TField extends AcceptedField>(
     const field = getFieldFromKey(key);
     if (!field) {
       if (options.safe) {
-        return toReturn;
+        return { set, get, safeGet, safeSet };
       }
       throw new Error(`Field with key ${key} not found`);
     }
@@ -63,30 +95,26 @@ export const createModuleConfig = <const TField extends AcceptedField>(
 
     if (!parsedValue.success) {
       if (options.safe) {
-        return toReturn;
+        return { set, get, safeGet, safeSet };
       }
       throw new Error(`Value ${value} is not valid for field ${key}`);
     }
 
     values.set(key, parsedValue.data);
 
-    return toReturn;
+    return { set, get, safeGet, safeSet };
   }
 
   function safeSet<
     TFieldKey extends TField['key'],
-    TFieldValue extends z.infer<
-      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
-    >
+    TFieldValue extends FieldValue<TField, TFieldKey>
   >(key: TFieldKey, value: TFieldValue) {
     return set(key, value, { safe: true });
   }
 
   function get<
     TFieldKey extends TField['key'],
-    TFieldValue extends z.infer<
-      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
-    >
+    TFieldValue extends FieldValue<TField, TFieldKey>
   >(key: TFieldKey, options: GetSetOptions = { safe: false }) {
     const field = getFieldFromKey(key);
     if (!field) {
@@ -101,12 +129,10 @@ export const createModuleConfig = <const TField extends AcceptedField>(
 
   function safeGet<
     TFieldKey extends TField['key'],
-    TFieldValue extends z.infer<
-      Extract<(typeof fields)[number], { key: TFieldKey }>['schema']
-    >
+    TFieldValue extends FieldValue<TField, TFieldKey>
   >(key: TFieldKey) {
     return get(key, { safe: true }) as TFieldValue | undefined;
   }
 
-  return toReturn;
+  return { set, get, safeGet, safeSet };
 };
