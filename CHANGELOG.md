@@ -1,5 +1,11 @@
 # @meichelbeck.io/module-config
 
+## 0.2.1
+
+### Patch Changes
+
+- Fix type recursion
+
 ## 0.2.0
 
 ### Minor Changes
